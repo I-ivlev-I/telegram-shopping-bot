@@ -15,6 +15,11 @@ build/
 go.sum
 vendor/
 
+# Исключить файлы тестов и покрытий
+*.test
+*.cover
+coverage.out
+
 # Docker файлы, не требующие версионирования
 docker-compose.override.yml
 

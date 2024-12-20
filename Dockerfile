@@ -1,32 +1,33 @@
-# Этап 1: сборка
-FROM golang:1.23.4-alpine3.21 AS builder
+# Используем минимальный базовый образ для Go
+FROM golang:1.20-alpine AS builder
 
-# Установка необходимых пакетов
+# Устанавливаем зависимости для сборки
 RUN apk add --no-cache git
 
-# Установка рабочей директории
+# Задаём рабочую директорию
 WORKDIR /app
 
-# Копируем файлы go.mod и go.sum для кэширования зависимостей
+# Копируем файлы приложения
 COPY go.mod go.sum ./
-
-# Установка зависимостей
 RUN go mod download
-
-# Копируем оставшиеся файлы проекта
 COPY . .
 
-# Сборка бинарного файла
-RUN go build -o main
+# Запуск тестов (если нужно)
+RUN go test -v ./... -coverprofile=coverage.out
 
-# Этап 2: финальное изображение
-FROM alpine:3.21
+# Собираем бинарный файл
+RUN go build -o main .
 
-# Установка рабочей директории
-WORKDIR /app
+# Создаём финальный минимальный образ
+FROM alpine:latest
 
-# Копируем только бинарный файл из этапа сборки
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
 COPY --from=builder /app/main .
+COPY .env .
 
-# Указываем команду запуска
+ENV TELEGRAM_BOT_TOKEN=""
+
 CMD ["./main"]
