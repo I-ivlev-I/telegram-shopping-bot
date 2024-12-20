@@ -28,7 +28,7 @@
 3. Запустите бота:
    ```bash
    docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
-```
+   ```
 
 ## Запуск бота на виртуальной машине
 
@@ -39,31 +39,31 @@
 1. Авторизуйтесь в Yandex.Cloud:
    ```bash
    yc init
-```
+   ```
 2. Создайте реестр контейнеров (если ещё не создан):
    ```bash
 	yc container registry create --name telegram-bot-registry
-```
+   ```
 3. Скопируйте ID реестра:
    ```bash
    yc container registry list
-```
+   ```
 4. Авторизуйтесь в реестре:
   ```bash
-   echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
+  echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
   ```
 5. Соберите Docker-образ:
   ```bash
   docker build -t telegram-bot .
-```
+  ```
 6. Задайте тег для образа:
   ```bash
   docker tag telegram-bot cr.yandex/<registry_id>/telegram-bot:latest
-```
+  ```
 7. Отправьте образ в реестр:
   ```bash
   docker push cr.yandex/<registry_id>/telegram-bot:latest
-```
+  ```
 Теперь ваш Docker-образ размещён в Yandex.Cloud Container Registry.
 
 ### 2. Подготовка виртуальной машины в Cloud.ru
@@ -76,7 +76,7 @@
   sudo apt install -y docker.io
   sudo systemctl start docker
   sudo systemctl enable docker
-```
+  ```
 3. Установите CLI Yandex Cloud
 Для Linux:
      ```bash
@@ -99,17 +99,17 @@
 1. Загрузите Docker-образ с Yandex.Cloud Container Registry:
   ```bash
   docker pull cr.yandex/<registry_id>/telegram-bot:latest
-```
+  ```
 2. Запустите контейнер с передачей токена:
   ```bash
   docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш_токен cr.yandex/<registry_id>/telegram-bot:latest
-```
+  ```
 3. Проверьте, что контейнер работает:
   ```bash
   docker logs telegram-bot
-```
+  ```
 4. Для настройки автоматического перезапуска (на случай перезагрузки виртуальной машины) выполните:
   ```bash
   docker update --restart always telegram-bot
-```
+  ```
 Теперь ваш бот успешно работает на облачной виртуальной машине, используя Docker-образ из Yandex.Cloud. 
