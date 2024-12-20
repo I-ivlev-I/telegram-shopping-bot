@@ -48,7 +48,7 @@
 4. Авторизуйтесь в реестре:
   ```bash
    echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
-   
+
 5. Соберите Docker-образ:
   ```bash
   docker build -t telegram-bot .
