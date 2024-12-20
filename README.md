@@ -29,6 +29,7 @@
    ```bash
    docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
 ```
+
 ## Запуск бота на виртуальной машине
 
 Эта инструкция объясняет, как запустить бота на виртуальной облачной машине с использованием Docker-образа, размещённого в Yandex.Cloud, и сервиса Cloud.ru.
