@@ -15,20 +15,18 @@
 
 ## Установка
 1. Склонируйте репозиторий:
-   ```bash
-   git clone https://github.com/I-ivlev-I/telegram-shopping-bot.git
-   ```
-   ```bash
-   cd telegram-shopping-bot
-   ```
+  ```bash
+  git clone https://github.com/I-ivlev-I/telegram-shopping-bot.git
+  cd telegram-shopping-bot
+  ```
 2. Соберите Docker-образ:
-   ```bash
-   docker build -t telegram-bot .
-   ```
+  ```bash
+  docker build -t telegram-bot .
+  ```
 3. Запустите бота:
-   ```bash
-   docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
-   ```
+  ```bash
+  docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
+  ```
 
 ## Запуск бота на виртуальной машине
 
@@ -37,17 +35,17 @@
 ### 1. Размещение Docker-образа в Yandex.Cloud Container Registry
 
 1. Авторизуйтесь в Yandex.Cloud:
-   ```bash
-   yc init
-   ```
+  ```bash
+  yc init
+  ```
 2. Создайте реестр контейнеров (если ещё не создан):
-   ```bash
-	yc container registry create --name telegram-bot-registry
-   ```
+  ```bash
+  yc container registry create --name telegram-bot-registry
+  ```
 3. Скопируйте ID реестра:
-   ```bash
-   yc container registry list
-   ```
+  ```bash
+  yc container registry list
+  ```
 4. Авторизуйтесь в реестре:
   ```bash
   echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
@@ -78,18 +76,18 @@
   sudo systemctl enable docker
   ```
 3. Установите CLI Yandex Cloud
-Для Linux:
-     ```bash
-     curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-	 ```
+  Для Linux:
+  ```bash
+  curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+  ```
   Затем добавьте CLI в ваш `PATH`:
-     ```bash
-     export PATH=$HOME/yandex-cloud/bin:$PATH
-	 ```
+  ```bash
+  export PATH=$HOME/yandex-cloud/bin:$PATH
+  ```
   Проверьте, что установка выполнена:
-     ```bash
-     yc version
-	 ```
+  ```bash
+  yc version
+  ```
 4. Авторизуйтесь в Yandex.Cloud Container Registry на виртуальной машине:
   ```bash
   echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
