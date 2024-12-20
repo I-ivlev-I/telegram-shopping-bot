@@ -26,7 +26,6 @@
 3. Запустите бота:
    ```bash
    docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
-   
 
 ## Запуск бота на виртуальной машине
 
@@ -41,11 +40,11 @@
 2. Создайте реестр контейнеров (если ещё не создан):
    ```bash
 	yc container registry create --name telegram-bot-registry
-	
+
 3. Скопируйте ID реестра:
    ```bash
    yc container registry list
- 
+
 4. Авторизуйтесь в реестре:
   ```bash
    echo <Ваш OAuth-токен>  | docker login --username oauth --password-stdin cr.yandex
