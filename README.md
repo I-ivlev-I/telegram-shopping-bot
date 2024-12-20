@@ -1,2 +1,21 @@
-# telegram-shopping-bot
-Telegram Bot for managing shopping lists, written in Go. Demonstrates Docker usage and deployment practices.
+# Telegram Shopping Bot
+
+Это бот для Telegram, который позволяет управлять списками покупок. Написан на языке Go, демонстрирует использование Docker и развертывание в облачной среде.
+
+## Функциональность
+- Создание и управление списками покупок для каждого чата.
+- Добавление, удаление и вычеркивание пунктов списка.
+- Поддержка множества пользователей с изолированными списками.
+
+## Предварительные требования
+- Установленный Docker.
+- Токен бота Telegram от [BotFather](https://core.telegram.org/bots#botfather).
+
+## Установка
+
+1. Склонируйте репозиторий:
+   ```bash
+   git clone https://github.com/I-ivlev-I/telegram-shopping-bot.git
+   cd telegram-shopping-bot
+   
+2. Соберите Docker-образ:
