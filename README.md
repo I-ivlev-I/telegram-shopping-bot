@@ -62,7 +62,7 @@
   ```bash
   docker push cr.yandex/<registry_id>/telegram-bot:latest
   ```
-Теперь ваш Docker-образ размещён в Yandex.Cloud Container Registry.
+Теперь Docker-образ размещён в Yandex.Cloud Container Registry.
 
 ### 2. Подготовка виртуальной машины в Cloud.ru
 
@@ -110,4 +110,4 @@
   ```bash
   docker update --restart always telegram-bot
   ```
-Теперь ваш бот успешно работает на облачной виртуальной машине, используя Docker-образ из Yandex.Cloud. 
+Теперь бот успешно работает на облачной виртуальной машине, используя Docker-образ из Yandex.Cloud. 
