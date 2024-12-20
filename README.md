@@ -8,10 +8,10 @@
 - Поддержка множества пользователей с изолированными списками.
 
 ## Предварительные требования
-- Установленный [Docker] (https://www.docker.com/get-started/).
+- Установленный [Docker](https://www.docker.com/get-started/).
 - Токен бота Telegram от [BotFather](https://core.telegram.org/bots#botfather).
-- Установленный [CLI Yandex Cloud] (https://yandex.cloud/ru/docs/cli/quickstart) (использовался мной для хранения Docker-образа).
-- Облачная VM, например [Cloud.ru] (https://cloud.ru/) (для бота достаточно мощностей Free tier)
+- Установленный [CLI Yandex Cloud](https://yandex.cloud/ru/docs/cli/quickstart) (использовался мной для хранения Docker-образа).
+- Облачная VM, например [Cloud.ru](https://cloud.ru/) (для бота достаточно мощностей Free tier)
 
 ## Установка
 1. Склонируйте репозиторий:
