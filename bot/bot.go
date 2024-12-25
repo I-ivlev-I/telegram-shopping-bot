@@ -85,20 +85,19 @@ func (b *ShoppingBot) StrikeThrough(chatID int64, index int) (string, error) {
 }
 
 func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
-	chatID := message.Chat.ID
-
 	switch {
 	case strings.HasPrefix(message.Text, "/start"):
 		return "👋 Привет! Я бот для списка покупок. Команды:\n" +
 			"/newlist - начать новый список\n" +
 			"/showlist - показать список\n" +
-			"/delete [№] - удалить пункт\n"
+			"/delete [№] - удалить пункт\n" +
+			"/strike [№] - вычеркнуть пункт\n"
 
 	case strings.HasPrefix(message.Text, "/newlist"):
-		return b.StartNewList(chatID)
+		return b.StartNewList(message.Chat.ID)
 
 	case strings.HasPrefix(message.Text, "/showlist"):
-		return b.GetList(chatID)
+		return b.GetList(message.Chat.ID)
 
 	case strings.HasPrefix(message.Text, "/delete"):
 		arg := strings.TrimSpace(strings.TrimPrefix(message.Text, "/delete"))
@@ -106,14 +105,28 @@ func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
 		if err != nil {
 			return "<b>⚠️ Укажите корректный номер пункта для удаления.</b>"
 		}
-		response, err := b.DeleteItem(chatID, index)
+		response, err := b.DeleteItem(message.Chat.ID, index)
+		if err != nil {
+			return err.Error()
+		}
+		return response
+
+	case strings.HasPrefix(message.Text, "/strike"):
+		arg := strings.TrimSpace(strings.TrimPrefix(message.Text, "/strike"))
+		index, err := strconv.Atoi(arg)
+		if err != nil {
+			return "<b>⚠️ Укажите корректный номер пункта для вычеркивания.</b>"
+		}
+		response, err := b.StrikeThrough(message.Chat.ID, index)
 		if err != nil {
 			return err.Error()
 		}
 		return response
 
 	default:
+		// Если не команда - добавляем к списку
 		lines := strings.Split(message.Text, "\n")
-		return b.AddToList(chatID, lines)
+		return b.AddToList(message.Chat.ID, lines)
 	}
 }
+

@@ -44,3 +44,22 @@ func TestDeleteItem(t *testing.T) {
 	actual := b.GetList(12345)
 	assert.Equal(t, expected, actual, "Список должен содержать только 'Молоко'")
 }
+
+func TestStrikeThrough(t *testing.T) {
+	b := bot.NewShoppingBot()
+	chatID := int64(12345)
+
+	b.StartNewList(chatID)
+	b.AddToList(chatID, []string{"Молоко", "Хлеб", "Яблоки"})
+
+	// Вычеркиваем второй пункт (Хлеб)
+	resp, err := b.StrikeThrough(chatID, 2)
+	assert.NoError(t, err)
+	assert.Equal(t, "<b>✅ Пункт вычеркнут.</b>", resp)
+
+	// Проверяем список
+	list := b.GetList(chatID)
+	// Ожидаем, что пункт 2 будет "<s>Хлеб</s>"
+	expected := "<b>📋 Ваш список покупок:</b>\n1. Молоко\n2. <s>Хлеб</s>\n3. Яблоки\n"
+	assert.Equal(t, expected, list, "Должны увидеть зачёркнутый элемент")
+}

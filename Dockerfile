@@ -26,8 +26,5 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /app/main .
-COPY .env .
-
-ENV TELEGRAM_BOT_TOKEN=""
 
 CMD ["./main"]
