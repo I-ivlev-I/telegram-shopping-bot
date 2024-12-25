@@ -84,7 +84,7 @@ func (b *ShoppingBot) StrikeThrough(chatID int64, index int) (string, error) {
 	return "<b>✅ Пункт вычеркнут.</b>", nil
 }
 
-func (b *ShoppingBot) unstrike(chatID int64, index int) (string, error) {
+func (b *ShoppingBot) Unstrike(chatID int64, index int) (string, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -156,7 +156,7 @@ func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
 		if err != nil {
 			return "<b>⚠️ Укажите корректный номер пункта для отмены зачёркивания.</b>"
 		}
-		response, err := b.unstrike(chatID, index)
+		response, err := b.Unstrike(chatID, index)
 		if err != nil {
 			return err.Error()
 		}
