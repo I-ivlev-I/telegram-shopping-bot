@@ -84,20 +84,47 @@ func (b *ShoppingBot) StrikeThrough(chatID int64, index int) (string, error) {
 	return "<b>✅ Пункт вычеркнут.</b>", nil
 }
 
+func (b *ShoppingBot) unstrike(chatID int64, index int) (string, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	list, exists := b.shoppingLists[chatID]
+	if !exists || len(list) == 0 {
+		return "", fmt.Errorf("<b>⚠️ Список пуст. Нечего отменять.</b>")
+	}
+
+	if index < 1 || index > len(list) {
+		return "", fmt.Errorf("<b>⚠️ Неверный номер. Пожалуйста, выберите существующий пункт.</b>")
+	}
+
+	item := list[index-1]
+	// Проверяем, было ли зачёркивание <s>...</s>
+	if strings.HasPrefix(item, "<s>") && strings.HasSuffix(item, "</s>") {
+		list[index-1] = item[3 : len(item)-4] // убираем теги <s>...</s>
+		b.shoppingLists[chatID] = list
+		return "<b>✅ Зачёркивание отменено.</b>", nil
+	}
+
+	return "<b>⚠️ Этот пункт не был зачёркнут.</b>", nil
+}
+
 func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
+	chatID := message.Chat.ID
+
 	switch {
 	case strings.HasPrefix(message.Text, "/start"):
 		return "👋 Привет! Я бот для списка покупок. Команды:\n" +
 			"/newlist - начать новый список\n" +
 			"/showlist - показать список\n" +
 			"/delete [№] - удалить пункт\n" +
-			"/strike [№] - вычеркнуть пункт\n"
+			"/strike [№] - вычеркнуть пункт\n" +
+			"/unstrike [№] - отменить зачёркивание\n"
 
 	case strings.HasPrefix(message.Text, "/newlist"):
-		return b.StartNewList(message.Chat.ID)
+		return b.StartNewList(chatID)
 
 	case strings.HasPrefix(message.Text, "/showlist"):
-		return b.GetList(message.Chat.ID)
+		return b.GetList(chatID)
 
 	case strings.HasPrefix(message.Text, "/delete"):
 		arg := strings.TrimSpace(strings.TrimPrefix(message.Text, "/delete"))
@@ -105,7 +132,7 @@ func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
 		if err != nil {
 			return "<b>⚠️ Укажите корректный номер пункта для удаления.</b>"
 		}
-		response, err := b.DeleteItem(message.Chat.ID, index)
+		response, err := b.DeleteItem(chatID, index)
 		if err != nil {
 			return err.Error()
 		}
@@ -117,16 +144,29 @@ func HandleUpdate(b *ShoppingBot, message *tgbotapi.Message) string {
 		if err != nil {
 			return "<b>⚠️ Укажите корректный номер пункта для вычеркивания.</b>"
 		}
-		response, err := b.StrikeThrough(message.Chat.ID, index)
+		response, err := b.StrikeThrough(chatID, index)
+		if err != nil {
+			return err.Error()
+		}
+		return response
+
+	case strings.HasPrefix(message.Text, "/unstrike"):
+		arg := strings.TrimSpace(strings.TrimPrefix(message.Text, "/unstrike"))
+		index, err := strconv.Atoi(arg)
+		if err != nil {
+			return "<b>⚠️ Укажите корректный номер пункта для отмены зачёркивания.</b>"
+		}
+		response, err := b.unstrike(chatID, index)
 		if err != nil {
 			return err.Error()
 		}
 		return response
 
 	default:
-		// Если не команда - добавляем к списку
+		// Если не команда — добавляем как пункты списка
 		lines := strings.Split(message.Text, "\n")
-		return b.AddToList(message.Chat.ID, lines)
+		return b.AddToList(chatID, lines)
 	}
 }
+
 

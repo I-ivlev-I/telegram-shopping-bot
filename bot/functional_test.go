@@ -63,3 +63,25 @@ func TestStrikeThrough(t *testing.T) {
 	expected := "<b>📋 Ваш список покупок:</b>\n1. Молоко\n2. <s>Хлеб</s>\n3. Яблоки\n"
 	assert.Equal(t, expected, list, "Должны увидеть зачёркнутый элемент")
 }
+
+func TestUnstrike(t *testing.T) {
+	b := bot.NewShoppingBot()
+	chatID := int64(12345)
+
+	b.StartNewList(chatID)
+	b.AddToList(chatID, []string{"Молоко", "Хлеб", "Яблоки"})
+
+	// Сначала зачеркнём второй пункт
+	_, err := b.StrikeThrough(chatID, 2)
+	assert.NoError(t, err)
+
+	// Теперь отменим зачёркивание
+	resp, err := b.Unstrike(chatID, 2)
+	assert.NoError(t, err)
+	assert.Equal(t, "<b>✅ Зачёркивание отменено.</b>", resp)
+
+	// Проверяем список
+	list := b.GetList(chatID)
+	expected := "<b>📋 Ваш список покупок:</b>\n1. Молоко\n2. Хлеб\n3. Яблоки\n"
+	assert.Equal(t, expected, list, "После /unstrike элемент 2 должен быть обычным текстом")
+}
