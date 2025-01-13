@@ -12,7 +12,6 @@
 build/
 
 # Кэш и зависимости Go
-go.sum
 vendor/
 
 # Исключить файлы тестов и покрытий
@@ -24,7 +23,6 @@ coverage.out
 docker-compose.override.yml
 
 # Исключить артефакты Docker
-.dockerignore
 Dockerfile.*
 
 # Git файлы, которые не нужны в репозитории

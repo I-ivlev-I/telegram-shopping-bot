@@ -1,0 +1,24 @@
+# Исключить конфиденциальные данные
+.env
+
+# Исключить тестовые артефакты из финального образа
+*.cover
+coverage.out
+
+# Исключить временные и кэш-файлы Go
+*.log
+*.tmp
+*.swp
+*.out
+*.exe
+build/
+vendor/
+
+# Исключить файлы Docker, не требующие включения в образ
+docker-compose.override.yml
+Dockerfile.*
+
+# Исключить файлы редакторов и IDE
+.idea/
+.vscode/
+*.iml
