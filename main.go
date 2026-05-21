@@ -81,7 +81,9 @@ func main() {
 			response := bot.HandleUpdate(shoppingBot, update.Message)
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, response)
 			msg.ParseMode = "HTML"
-			if update.Message.IsCommand() && update.Message.Command() == "showlist" {
+			menu := bot.MainMenuKeyboard()
+			msg.ReplyMarkup = menu
+			if (update.Message.IsCommand() && update.Message.Command() == "showlist") || update.Message.Text == bot.BtnShowList {
 				if keyboard := shoppingBot.BuildListKeyboard(update.Message.Chat.ID); keyboard != nil {
 					msg.ReplyMarkup = keyboard
 				}
