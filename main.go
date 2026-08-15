@@ -76,6 +76,9 @@ func main() {
 				}
 
 				ack := tgbotapi.NewCallback(cb.ID, "")
+				response := bot.HandleCallback(shoppingBot, cb.Data, cb.Message.Chat.ID)
+
+				ack := tgbotapi.NewCallback(cb.ID, response)
 				if _, err := telegramBot.Request(ack); err != nil {
 					log.Printf("Failed to answer callback: %v", err)
 				}
@@ -89,6 +92,13 @@ func main() {
 				}
 				if _, err := telegramBot.Send(msg); err != nil {
 					log.Printf("Failed to send callback response: %v", err)
+				listMsg := tgbotapi.NewMessage(cb.Message.Chat.ID, shoppingBot.GetList(cb.Message.Chat.ID))
+				listMsg.ParseMode = "HTML"
+				if keyboard := shoppingBot.BuildListKeyboard(cb.Message.Chat.ID); keyboard != nil {
+					listMsg.ReplyMarkup = keyboard
+				}
+				if _, err := telegramBot.Send(listMsg); err != nil {
+					log.Printf("Failed to send list after callback: %v", err)
 				}
 				continue
 			}
@@ -97,7 +107,6 @@ func main() {
 				continue
 			}
 			removeLegacyKeyboard(update.Message.Chat.ID)
-
 			response := bot.HandleUpdate(shoppingBot, update.Message)
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, response)
 			msg.ParseMode = "HTML"
@@ -105,6 +114,9 @@ func main() {
 			msg.ReplyMarkup = menu
 			if (update.Message.IsCommand() && update.Message.Command() == "showlist") || update.Message.Text == bot.BtnShowList {
 				msg.ReplyMarkup = shoppingBot.BuildListKeyboard(update.Message.Chat.ID)
+				if keyboard := shoppingBot.BuildListKeyboard(update.Message.Chat.ID); keyboard != nil {
+					msg.ReplyMarkup = keyboard
+				}
 			}
 			if _, err := telegramBot.Send(msg); err != nil {
 				log.Printf("Failed to send message: %v", err)
