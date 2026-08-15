@@ -43,6 +43,43 @@ func mainMenuRows() [][]tgbotapi.InlineKeyboardButton {
 			tgbotapi.NewInlineKeyboardButtonData(BtnHelp, "menu:help"),
 		),
 	}
+func MainMenuKeyboard() tgbotapi.ReplyKeyboardMarkup {
+	return tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(BtnNewList),
+			tgbotapi.NewKeyboardButton(BtnShowList),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(BtnDelete),
+			tgbotapi.NewKeyboardButton(BtnStrike),
+			tgbotapi.NewKeyboardButton(BtnUnstrike),
+		),
+		tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton(BtnHelp)),
+	)
+}
+
+func startText() string {
+	return "👋 Привет! Я бот для списка покупок. Команды:\n" +
+		"/newlist - начать новый список\n" +
+		"/showlist - показать список и кнопки действий\n" +
+		"/delete [№] - удалить пункт\n" +
+		"/strike [№] - вычеркнуть пункт\n" +
+		"/unstrike [№] - отменить зачёркивание\n\n" +
+		"Или используйте кнопки меню ниже."
+}
+
+func MainMenuKeyboard() tgbotapi.InlineKeyboardMarkup {
+	return tgbotapi.NewInlineKeyboardMarkup(mainMenuRows()...)
+}
+
+func startText() string {
+	return "👋 Привет! Я бот для списка покупок. Команды:\n" +
+		"/newlist - начать новый список\n" +
+		"/showlist - показать список и кнопки действий\n" +
+		"/delete [№] - удалить пункт\n" +
+		"/strike [№] - вычеркнуть пункт\n" +
+		"/unstrike [№] - отменить зачёркивание\n\n" +
+		"Или используйте кнопки меню ниже."
 }
 
 func MainMenuKeyboard() tgbotapi.InlineKeyboardMarkup {
