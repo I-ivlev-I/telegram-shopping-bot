@@ -82,6 +82,20 @@ func startText() string {
 		"Или используйте кнопки меню ниже."
 }
 
+func MainMenuKeyboard() tgbotapi.InlineKeyboardMarkup {
+	return tgbotapi.NewInlineKeyboardMarkup(mainMenuRows()...)
+}
+
+func startText() string {
+	return "👋 Привет! Я бот для списка покупок. Команды:\n" +
+		"/newlist - начать новый список\n" +
+		"/showlist - показать список и кнопки действий\n" +
+		"/delete [№] - удалить пункт\n" +
+		"/strike [№] - вычеркнуть пункт\n" +
+		"/unstrike [№] - отменить зачёркивание\n\n" +
+		"Или используйте кнопки меню ниже."
+}
+
 func (b *ShoppingBot) StartNewList(chatID int64) string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -185,9 +199,6 @@ func (b *ShoppingBot) buildListButtons(chatID int64) [][]tgbotapi.InlineKeyboard
 func (b *ShoppingBot) BuildListKeyboard(chatID int64) *tgbotapi.InlineKeyboardMarkup {
 	rows := b.buildListButtons(chatID)
 	rows = append(rows, mainMenuRows()...)
-	if len(rows) == 0 {
-		return nil
-	}
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 	return &markup
 }
@@ -266,19 +277,7 @@ func HandleCallback(b *ShoppingBot, callbackData string, chatID int64) string {
 	case "menu:help":
 		return startText()
 	}
-		return b.GetList(chatID)
-	case BtnDelete:
-		return "<b>🗑 Укажите номер:</b> отправьте команду в формате <code>/delete 2</code>."
-	case BtnStrike:
-		return "<b>✅ Укажите номер:</b> отправьте команду в формате <code>/strike 2</code>."
-	case BtnUnstrike:
-		return "<b>↩️ Укажите номер:</b> отправьте команду в формате <code>/unstrike 2</code>."
-	default:
-		return b.AddToList(chatID, strings.Split(text, "\n"))
-	}
-}
 
-func HandleCallback(b *ShoppingBot, callbackData string, chatID int64) string {
 	parts := strings.Split(callbackData, ":")
 	if len(parts) != 2 {
 		return "<b>⚠️ Не удалось обработать действие.</b>"
@@ -320,4 +319,3 @@ func CallbackShowsList(callbackData string) bool {
 		strings.HasPrefix(callbackData, "str:") ||
 		strings.HasPrefix(callbackData, "uns:")
 }
-

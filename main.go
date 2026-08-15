@@ -33,18 +33,20 @@ func main() {
 	log.Printf("Authorized on account %s", telegramBot.Self.UserName)
 
 	shoppingBot := bot.NewShoppingBot()
-	legacyKeyboardRemoved := make(map[int64]bool)
 	removeLegacyKeyboard := func(chatID int64) {
-		if legacyKeyboardRemoved[chatID] {
-			return
-		}
-		cleanup := tgbotapi.NewMessage(chatID, "⌨️ Меню обновлено: используйте кнопки под сообщениями.")
+		// Telegram only removes a persistent reply keyboard through a sent
+		// message. Delete that service message immediately so migration from the
+		// old keyboard does not leave an extra reply in the chat.
+		cleanup := tgbotapi.NewMessage(chatID, "⌨️ Обновление меню…")
 		cleanup.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false)
-		if _, err := telegramBot.Send(cleanup); err != nil {
+		sent, err := telegramBot.Send(cleanup)
+		if err != nil {
 			log.Printf("Failed to remove legacy reply keyboard: %v", err)
 			return
 		}
-		legacyKeyboardRemoved[chatID] = true
+		if _, err := telegramBot.Request(tgbotapi.NewDeleteMessage(chatID, sent.MessageID)); err != nil {
+			log.Printf("Failed to delete keyboard migration message: %v", err)
+		}
 	}
 
 	u := tgbotapi.NewUpdate(0)
@@ -69,36 +71,35 @@ func main() {
 
 			if update.CallbackQuery != nil {
 				cb := update.CallbackQuery
-				removeLegacyKeyboard(cb.Message.Chat.ID)
+				if cb.Message == nil {
+					ack := tgbotapi.NewCallbackWithAlert(cb.ID, "Не удалось определить сообщение меню.")
+					if _, err := telegramBot.Request(ack); err != nil {
+						log.Printf("Failed to answer callback: %v", err)
+					}
+					continue
+				}
+
 				response := bot.HandleCallback(shoppingBot, cb.Data, cb.Message.Chat.ID)
 				if strings.HasPrefix(cb.Data, "del:") || strings.HasPrefix(cb.Data, "str:") || strings.HasPrefix(cb.Data, "uns:") {
 					response += "\n\n" + shoppingBot.GetList(cb.Message.Chat.ID)
 				}
 
 				ack := tgbotapi.NewCallback(cb.ID, "")
-				response := bot.HandleCallback(shoppingBot, cb.Data, cb.Message.Chat.ID)
-
-				ack := tgbotapi.NewCallback(cb.ID, response)
 				if _, err := telegramBot.Request(ack); err != nil {
 					log.Printf("Failed to answer callback: %v", err)
 				}
 
-				msg := tgbotapi.NewMessage(cb.Message.Chat.ID, response)
-				msg.ParseMode = "HTML"
+				markup := bot.MainMenuKeyboard()
 				if bot.CallbackShowsList(cb.Data) {
-					msg.ReplyMarkup = shoppingBot.BuildListKeyboard(cb.Message.Chat.ID)
-				} else {
-					msg.ReplyMarkup = bot.MainMenuKeyboard()
+					markup = *shoppingBot.BuildListKeyboard(cb.Message.Chat.ID)
 				}
-				if _, err := telegramBot.Send(msg); err != nil {
-					log.Printf("Failed to send callback response: %v", err)
-				listMsg := tgbotapi.NewMessage(cb.Message.Chat.ID, shoppingBot.GetList(cb.Message.Chat.ID))
-				listMsg.ParseMode = "HTML"
-				if keyboard := shoppingBot.BuildListKeyboard(cb.Message.Chat.ID); keyboard != nil {
-					listMsg.ReplyMarkup = keyboard
-				}
-				if _, err := telegramBot.Send(listMsg); err != nil {
-					log.Printf("Failed to send list after callback: %v", err)
+				// Edit the menu message in place. Sending a new message for every
+				// button press made the chat jump to an apparent reply and filled it
+				// with duplicate menus.
+				edit := tgbotapi.NewEditMessageTextAndMarkup(cb.Message.Chat.ID, cb.Message.MessageID, response, markup)
+				edit.ParseMode = "HTML"
+				if _, err := telegramBot.Send(edit); err != nil && !strings.Contains(err.Error(), "message is not modified") {
+					log.Printf("Failed to update callback message: %v", err)
 				}
 				continue
 			}
@@ -106,7 +107,10 @@ func main() {
 			if update.Message == nil {
 				continue
 			}
-			removeLegacyKeyboard(update.Message.Chat.ID)
+			if update.Message.IsCommand() && update.Message.Command() == "start" {
+				removeLegacyKeyboard(update.Message.Chat.ID)
+			}
+
 			response := bot.HandleUpdate(shoppingBot, update.Message)
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, response)
 			msg.ParseMode = "HTML"
@@ -114,9 +118,6 @@ func main() {
 			msg.ReplyMarkup = menu
 			if (update.Message.IsCommand() && update.Message.Command() == "showlist") || update.Message.Text == bot.BtnShowList {
 				msg.ReplyMarkup = shoppingBot.BuildListKeyboard(update.Message.Chat.ID)
-				if keyboard := shoppingBot.BuildListKeyboard(update.Message.Chat.ID); keyboard != nil {
-					msg.ReplyMarkup = keyboard
-				}
 			}
 			if _, err := telegramBot.Send(msg); err != nil {
 				log.Printf("Failed to send message: %v", err)

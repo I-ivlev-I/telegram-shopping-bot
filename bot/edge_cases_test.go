@@ -53,7 +53,6 @@ func TestHandleCallbackAndKeyboard(t *testing.T) {
 	kb := b.BuildListKeyboard(chatID)
 	if assert.NotNil(t, kb) {
 		assert.Len(t, kb.InlineKeyboard, 5)
-		assert.Len(t, kb.InlineKeyboard, 2)
 		if assert.NotNil(t, kb.InlineKeyboard[0][1].CallbackData) {
 			assert.Equal(t, "uns:1", *kb.InlineKeyboard[0][1].CallbackData)
 		}
