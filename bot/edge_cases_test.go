@@ -52,6 +52,7 @@ func TestHandleCallbackAndKeyboard(t *testing.T) {
 
 	kb := b.BuildListKeyboard(chatID)
 	if assert.NotNil(t, kb) {
+		assert.Len(t, kb.InlineKeyboard, 5)
 		assert.Len(t, kb.InlineKeyboard, 2)
 		if assert.NotNil(t, kb.InlineKeyboard[0][1].CallbackData) {
 			assert.Equal(t, "uns:1", *kb.InlineKeyboard[0][1].CallbackData)
@@ -60,6 +61,25 @@ func TestHandleCallbackAndKeyboard(t *testing.T) {
 
 	resp = bot.HandleCallback(b, "bad:data", chatID)
 	assert.Contains(t, resp, "Не удалось обработать")
+}
+
+func TestMainMenuUsesInlineButtons(t *testing.T) {
+	menu := bot.MainMenuKeyboard()
+	assert.Len(t, menu.InlineKeyboard, 3)
+	assert.Equal(t, "menu:newlist", *menu.InlineKeyboard[0][0].CallbackData)
+	assert.Equal(t, "menu:showlist", *menu.InlineKeyboard[0][1].CallbackData)
+	assert.Equal(t, "menu:help", *menu.InlineKeyboard[2][0].CallbackData)
+}
+
+func TestMenuCallbacks(t *testing.T) {
+	b := bot.NewShoppingBot()
+	chatID := int64(12345)
+	b.AddToList(chatID, []string{"Хлеб"})
+
+	assert.Contains(t, bot.HandleCallback(b, "menu:showlist", chatID), "Хлеб")
+	assert.True(t, bot.CallbackShowsList("menu:showlist"))
+	assert.Contains(t, bot.HandleCallback(b, "menu:newlist", chatID), "Новый список")
+	assert.False(t, bot.CallbackShowsList("menu:newlist"))
 }
 
 func TestStrictCommandParsingWithEntities(t *testing.T) {
