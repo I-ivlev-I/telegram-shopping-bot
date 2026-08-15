@@ -1,30 +1,20 @@
-# Используем минимальный базовый образ для Go
-FROM golang:1.20-alpine AS builder
+# syntax=docker/dockerfile:1
 
-# Устанавливаем зависимости для сборки
+FROM golang:1.20-alpine AS base
 RUN apk add --no-cache git
-
-# Задаём рабочую директорию
 WORKDIR /app
-
-# Копируем файлы приложения
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
-# Запуск тестов (если нужно)
+FROM base AS test
 RUN go test -v ./... -coverprofile=coverage.out
 
-# Собираем бинарный файл
-RUN go build -o main .
+FROM base AS builder
+RUN CGO_ENABLED=0 go build -ldflags='-s -w' -o main .
 
-# Создаём финальный минимальный образ
-FROM alpine:latest
-
+FROM alpine:latest AS runtime
 RUN apk --no-cache add ca-certificates
-
 WORKDIR /root/
-
 COPY --from=builder /app/main .
-
 CMD ["./main"]

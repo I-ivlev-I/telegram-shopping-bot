@@ -9,6 +9,7 @@
 ## Функциональность
 - Создание и управление списками покупок для каждого чата.
 - Добавление, удаление и вычеркивание пунктов списка.
+- Inline-кнопки под списком для быстрого удаления/вычёркивания без ручного ввода номера.
 - Поддержка множества пользователей с изолированными списками.
 
 ## Предварительные требования
@@ -31,6 +32,12 @@
   ```bash
   docker run -d --name telegram-bot -e TELEGRAM_BOT_TOKEN=ваш-токен telegram-bot
   ```
+
+### Debug-режим
+Чтобы включить отладочные логи Telegram API, добавьте переменную:
+```bash
+-e TELEGRAM_BOT_DEBUG=true
+```
 
 ## Запуск бота на виртуальной машине
 
@@ -115,3 +122,14 @@
   docker update --restart always telegram-bot
   ```
 Теперь бот успешно работает на облачной виртуальной машине, используя Docker-образ из Yandex.Cloud. 
+
+
+## Docker targets
+- Прогон тестов в контейнере:
+  ```bash
+  docker build --target test -t telegram-bot:test .
+  ```
+- Сборка production-образа:
+  ```bash
+  docker build --target runtime -t telegram-bot:latest .
+  ```
